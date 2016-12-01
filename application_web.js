@@ -26,7 +26,7 @@ var app = express();
 var config = [];
 var config_h = [];
 var configIndex = 0;
-var numOfDevice = 2;
+var numOfDevice = 1;
 
 var nodemailer = require('./notification/mail').request;
 
@@ -52,8 +52,27 @@ app.get(config_h, function(req,res) {
 
 //=============================================================================================================================//
 
+//-----------------------------------------------randomInt Function for Create Request ID--------------------------------------//
 
+app.post('/set_dev_info', function(req,res) {
 
+	var new_node_id = req.body.uNid;
+	var new_user_key = req.body.uUkey;
+	var new_container_name = req.body.uCon;
+	
+	
+	config[configIndex].nodeID = new_node_id;
+	config[configIndex].uKey = new_user_key;
+	config[configIndex].containerName = new_container_name;
+	
+	console.log(config[configIndex].nodeID)
+	console.log(config[configIndex].uKey)
+	console.log(config[configIndex].containerName)
+	
+	return res.send({'result':'ok'});
+});
+
+//=============================================================================================================================//
 
 
 //-----------------------------------------------randomInt Function for Create Request ID--------------------------------------//

@@ -18,37 +18,38 @@
 "use strict";
 
 jQuery(document).ready(function() {
-	var data = [0];					// Raw Data of Contents(contentsInstance)
-	var data_humid = [0];			// parsed Humidity value from contents
-	var data_temp = [0];			// parsed Temperature value from contents
-	var data_lux = [0];				// parsed Brightness value from contents
-	var Data_NodeID = [0];			// LTID to Display on Webpage
+	var data = [0];					// 디바이스의 Raw Data 확인	
+	var data_humid = [0];			// 웹페이지에 출력되는 습도값
+	var data_temp = [0];			// 웹페이지에 출력되는 온도값
+	var data_lux = [0];				// 웹페이지에 출력되는 조도값
+	var Data_NodeID = [0];			// 웹페이지에 출력되는 LTID
+	var nodeID_ex = [];				// LTID 정보 저장
 	
-	var numOfDevice = 2;			// number of Device
-	var nodeIndex=0;				// current Index of config file (ex : nodeIndex =0 -> config_1)
-	var period = 1;					// getLatestData second
-	var container_name = 'LoRa';	// container name from config file
+	var numOfDevice = 1;			// 웹페이지에서 확인할 디바이스의 갯수 (config.js의 갯수)
+	var nodeIndex=0;				// 현재 출력되는 (config-1) 정보 ex) nodeIndex =0 -> config_1 정보	
+	var period = 1;					// getLatestData 주기 sec (RepPerChange 명령에 의해 변경)
+	var container_name = 'myContainer';	// 생성한 container의 이름 (config.js 수정)
 
-	var nodeID = [];				// LTID from config
-	var delimiter = [];				// delimiter to parse sensor data from raw data
+	var nodeID = [];				// LTID 정보 저장	
+	var delimiter = [];				// 디바이스에서 전달되는 <con> 데이터의 구분자 (config.js 수정)
 
-	var MAX_DATA = 30;				// Maximum to display on Webpage			
-	var map = null;					// map info
+	var MAX_DATA = 30;				// 그래프에 표시되는 데이터의 갯수			
+	var map = null;					// 지도 정보
 	
-	var valueLat = "0";				// Temp Latitude data
-	var valueLng = "0";				// Temp Longitude data
-	var result_lat = new Array();	// parsed Latitude data on map
-	var result_lng = new Array();	// parsed Longitude data on map
+	var valueLat = "0";				// 지도에 표시될 디바이스의 위도 Tmp
+	var valueLng = "0";				// 지도에 표시될 디바이스의 경도 Tmp
+	var result_lat = new Array();	// 지도에 표시될 디바이스의 위도 보관
+	var result_lng = new Array();	// 지도에 표시될 디바이스의 경도 보관
 
-	var valueIF = null;				// Trigger Sensor's status value
-	var trigger_sensor = null;		// Type of Sensor's name
-	var trigger_if = null;			// Trigger Type(less than, same, greater than)
-	var trigger_value = null;		// Threshold value
-	var trigger_way = null;			// Alarm Type(E-Mail)
-	var trigger_nodeID = null;		// Triggered LTID
-	var output_string = null;		// Alarm Message to send E-mail
+	var valueIF = null;				// 트리거 상태 값 (트리거로 등록한 센서의 현재 값)
+	var trigger_sensor = null;		// 트리거로 등록한 센서 종류(온도, 습도, 조도)
+	var trigger_if = null;			// 트리거 옵션(이상|이하|같음)
+	var trigger_value = null;		// 트리거 기준 값 (ex : 센서의 value값 이상|이하|같음 인 경우 메시지 전송)
+	var trigger_way = null;			// 알림방식 (E-MAIL만 지원)
+	var trigger_nodeID = null;		// 알림받을 LTID
+	var output_string = null;		// 알림메시지
 	
-	var emailOptions = {			// E-Mail Receiver's Infomation
+	var emailOptions = {			// 알림 메시지를 받을 이메일 정보
 		from: 'ThingPlug <skt.thingplug@gmail.com>',
 		to: null,
 		subject: 'ThingPlug Alert',
@@ -135,9 +136,10 @@ jQuery(document).ready(function() {
 	/* end of graph Related Variables */
 //=============================================================================================================================//
 
-//--------------------------------Get LTID---------------------------------------------------------------//
+//--------------------------------nodeID 초기화---------------------------------------------------------------//
 	function getConfig(cb) {
 		var url = '/config_'+(nodeIndex+1).toString();
+		
 		$.get(url, function(data, status){
 			if(status == 'success'){
 				cb(null, data);
@@ -152,9 +154,10 @@ jQuery(document).ready(function() {
 	function callnodeID() {
 		for(var i=0;i<numOfDevice;i++) {
 			nodeIndex=i;
-			getConfig( function(err,config) {
-				nodeID.push(config.nodeID);	
+			getConfig( function(err,config) {	
+				nodeID.push(config.UserNodeID);	
 				delimiter.push(config.delimiter);
+				toastr.info('callnodeID : "' + nodeIndex + config.UserNodeID +'"');
 			});
 		}
 		nodeIndex=0;
@@ -162,7 +165,25 @@ jQuery(document).ready(function() {
 	callnodeID();
 //=============================================================================================================================//
 
-//-----------------------------------------------------Event notification-------------------------------------------------------//
+//-------------------------------------Node, Container 입력 버튼 클릭---------------------------------------//
+//daniel
+	$('#Btn_Set_info').on('click', function(event) {
+		var uNodeID = document.getElementById('userNodeID').value;
+		var uUserKey = document.getElementById('userUserKey').value;
+		var uConName = document.getElementById('userConName').value;
+		
+		toastr.info('Your Node ID : "' + uNodeID + '"');
+		toastr.info('Your UserKey : "' + uUserKey + '"');
+		toastr.info('Your Node ID : "' + uConName + '"');
+		$.post('/set_dev_info', {uNid: uNodeID, uUkey: uUserKey, uCon: uConName}, function(data,status){
+			toastr.info('Set Node ID: "' + reqcmd + '"');	
+		});
+		
+	});
+
+//=============================================================================================================================//
+
+//-----------------------------------------------------Event 발생시 알림-------------------------------------------------------//
 
 	function sendmail(cb) {
 		var url = '/email';
@@ -182,7 +203,7 @@ jQuery(document).ready(function() {
 //=============================================================================================================================//
 
 
-//-----------------------------------------------------Map Initialize-------------------------------------------------------//
+//-----------------------------------------------------지도 초기화 및 표시-------------------------------------------------------//
 
 	function initMap() {
 		var myLatLng = [];
@@ -254,7 +275,7 @@ jQuery(document).ready(function() {
 	}
 //=============================================================================================================================//
 
-//-----------------------------------------------------d3 Graph Initialize-------------------------------------------------------//
+//-----------------------------------------------------그래프 초기화 및 생성-------------------------------------------------------//
 
 	function creategraph(obj) {
 		obj._color.domain("Sensor_"+obj.id);
@@ -338,7 +359,7 @@ jQuery(document).ready(function() {
 	creategraph(lux_obj);
 //=============================================================================================================================//
 
-//-----------------------------------------------------parse latest Data-------------------------------------------------------//
+//-----------------------------------------------------container로부터 받은 데이터 처리-------------------------------------------------------//
 
 	function getData(container, cb) {
 		var url = '/data/' + container;
@@ -393,7 +414,7 @@ jQuery(document).ready(function() {
 	}  
 //=============================================================================================================================//
 
-//-----------------------------------------------------popup option for mgmtCmd-------------------------------------------------------//
+//-----------------------------------------------------mgmtCmd 버튼 클릭시 팝업-------------------------------------------------------//
 
 	function initToastOptions(){
 		toastr.options = {
@@ -418,7 +439,7 @@ jQuery(document).ready(function() {
 	initToastOptions();
 //=============================================================================================================================//
 
-//-------------------------------------display latest Data on Webpage---------------------------------------//
+//-------------------------------------주기적으로 조회된 최신 데이터 처리---------------------------------------//
 	
 	getConfig( function(err,config) {
 		if(data){ 
@@ -436,8 +457,11 @@ jQuery(document).ready(function() {
 			insertData(data_temp,valueTemp, '#temp_value');
 			insertData(data_humid,valueHumid, '#humid_value');
 			insertData(data_lux,valueLux, '#lux_value');
+			//daniel
+			//output_string = 'Device ID : '+nodeID[nodeIndex]+', Temp : ' + valueTemp.toString() + ', Humidity : ' + valueHumid.toString() + ', Brightness : ' + valueLux.toString();
+			output_string = 'Device ID : '+nodeID_ex+', Temp : ' + valueTemp.toString() + ', Humidity : ' + valueHumid.toString() + ', Brightness : ' + valueLux.toString();
+			//toastr.info('output string : "' + output_string + '"');
 			
-			output_string = 'Device ID : '+nodeID[nodeIndex]+', Temp : ' + valueTemp.toString() + ', Humidity : ' + valueHumid.toString() + ', Brightness : ' + valueLux.toString();
 			if(trigger_sensor == "Temperature"){//Temperature
 				valueIF = parseInt(valueTemp);
 			}
@@ -450,15 +474,15 @@ jQuery(document).ready(function() {
 			
 
 		});
-		insertData(Data_NodeID,nodeID[nodeIndex], '#NodeID');
-		
+		//insertData(Data_NodeID,nodeID[nodeIndex], '#NodeID');
+		//toastr.info('output string : "' + output_string + '"');
 		updategraph(temp_obj);
 		updategraph(humid_obj);
 		updategraph(lux_obj);
 
 //=============================================================================================================================//
 
-//-------------------------------------Trigger Action---------------------------------------//
+//-------------------------------------Trigger 설정한 경우 처리---------------------------------------//
 
 		
 		var isTrue = false;
@@ -495,7 +519,7 @@ jQuery(document).ready(function() {
 
 //=============================================================================================================================//
 
-//-------------------------------------Click DevReset Button---------------------------------------//
+//-------------------------------------DevReset 버튼 클릭---------------------------------------//
 
 	$('#DevReset').on('click', function(event) {
 		$.post('/control',{cmt:'DevReset', cmd:'request'}, function(data,status){
@@ -504,7 +528,7 @@ jQuery(document).ready(function() {
 	});
 //=============================================================================================================================//
 
-//-------------------------------------Click extDevMgmt Button---------------------------------------//
+//-------------------------------------extDevMgmt 버튼 클릭---------------------------------------//
 
 	$('#extDevMgmt').on('click', function(event) {
 		var reqcmd = document.getElementById('command_value').value;
@@ -514,7 +538,7 @@ jQuery(document).ready(function() {
 	});
 //=============================================================================================================================//
 
-//-------------------------------------Click Trigger Register Button---------------------------------------//
+//-------------------------------------Trigger Register 버튼 클릭---------------------------------------//
 	$('#action_button').on('click', function(event) {
 
 		
@@ -569,4 +593,3 @@ function deepCopy(obj) {
     return obj;
 }
 });
-

@@ -140,12 +140,13 @@ vertical-align:baseline
 <script src="./js/d3.v2.js"></script>
 <script src="https://maps.googleapis.com/maps/api/js" async defer></script>
 <script src="./js/app.js"></script>
-<title>Band LoRa StarterKit</title>
+<title>ThingPlug Example</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 </head>
 <script>
   </script>
 <body style="font-family: Moebius">
+<!--
 <div class="nav">
 	<ul>
 		<div class="container">
@@ -158,54 +159,65 @@ vertical-align:baseline
 		</div>
 	</ul>
 </div>
+-->
+<br>
+<br>
 <div class="container" style="color:#1F2520">
-	<div class="jumbotron">
-		<h2>Band LoRa StarterKit</h2>
-		<p>
-			An Example Web Application that utilizes the ThingPlug Standardized APIs and LoRa Network
-		</p>
+	<div class="jumbotron" align="center">
+		<h2>Control your Home with ThingPlug.</h2>
+		<!-- <h2>ThingPlug StarterKit for WIZnet Academy</h2> -->
 	</div>
-	<h1 class="page-header" align="center"> Device Status Monitoring </h1>
+	
 	<div class="container" align="center" style="vertical-align: middle; ">
 		<div class="row">
-			<div class="col-sm-6 col-md-12" style="background-color : lightGray; border-radius: 15px; height: auto">
+			<div class="col-sm-12 col-md-12" style="background-color : lightGray; border-radius: 15px; height: auto">
 				<div class="row" style="font-size:20; border-color : white; border-width : thin; border-style : none none solid none; " align="left">
 					<div class="col-sm-1 col-xs-1">
 						<img src="http://image000.flaticon.com/icons/svg/1/1176.svg" style="width: 100%; height: 24; margin:3">
 					</div>
-					<div class="col-sm-8 col-xs-8" style="text-align: left; font-size:20;">
+					<div class="col-sm-3 col-md-3  col-xs-3" style="text-align: left; font-size:20;">
 						 Device Information
 					</div>
+
+					<div class="col-sm-5 col-md-5  col-xs-5" align="left" id="NodeID">
+						
+					</div>
+					<div class="col-sm-3 col-md-3  col-xs-3" align="left" id="containerName">
+						
+					</div>
 				</div>
-				<font size="4">
+				
 				<div class="row">
-					<div class="col-sm-2 col-xs-4" align="Right">
-						 LTID :
+					<!-- NodeID   -->
+					<div class="col-sm-3 col-md-3 col-xs-3" style="text-align: right; font-size:20;">
+						 Node ID
+					</div>			
+					<div class="col-sm-9 col-md-9 col-xs-9" style="vertical-align:bottom">
+						<input type="text" id="userNodeID" name="userNodeID" value="your Node ID" style="text-align:center; width:100%; height: 34px; color:lightGray" onfocus="if(this.value=='your Node ID'){this.value=''};this.style.color='black';return true" width="100%"></input>
 					</div>
-					<div class="col-sm-4 col-xs-8" align="left" id="NodeID">
-						 ...
+					<!-- User Key   -->
+					<div class="col-sm-3 col-md-3 col-xs-3" style="text-align: right; font-size:20;">
+						 User Key
+					</div>			
+					<div class="col-sm-9 col-md-9 col-xs-9" style="vertical-align:bottom">
+						<input type="text" id="userUserKey" name="userUserKey" value="your User Key" style="text-align:center; width:100%; height: 34px; color:lightGray" onfocus="if(this.value=='your User Key'){this.value=''};this.style.color='black';return true" width="100%"></input>
+					</div>
+					<!-- Container name   -->
+					<div class="col-sm-3 col-md-3 col-xs-3" style="text-align: right; font-size:20;">
+						 Container Name
+					</div>			
+					<div class="col-sm-9 col-md-9 col-xs-9" style="vertical-align:bottom">
+						<input type="text" id="userConName" name="userConName" value="your Container Name" style="text-align:center; width:100%; height: 34px; color:lightGray" onfocus="if(this.value=='your Container Name'){this.value=''};this.style.color='black';return true" width="100%"></input>
+					</div>
+					
+					<!-- Button   -->
+					<div class="col-sm-12 col-md-12 col-xs-12" style="vertical-align:bottom">
+						<a class="myButton" id="Btn_Set_info" align="center" style="width:100%;height:35;padding">입력</a>
 					</div>
 				</div>
-				</font>
 			</div>
 		</div>
 		<br>
-		<br>
-		<div class="row" style="background-color : lightgray; border-color : lightgray; border-width : 2; border-style : solid; border-radius: 15px; height: auto">
-			<div class="col-sm-6 col-md-12" style="background-color : white; height: auto; border-color : lightgray; border-width : 2; border-style : none none solid none; border-radius: 15px; ">
-				<div class="row" style="font-size:20; border-color : lightgray; border-width : 2; border-style : none none solid none; border-radius: 15px; " align="left">
-					<div class="col-sm-1 col-xs-1">
-						<img src="http://image000.flaticon.com/icons/svg/62/62516.svg" style="width: 100%; height: 24; margin:3">
-					</div>
-					<div class="col-sm-8 col-xs-8" style="text-align: left; font-size:20;">
-						 LoRa Device Location On Map
-					</div>
-				</div>
-			</div>
-			<div id="map">
-			</div>
-			<script src="https://maps.googleapis.com/maps/api/js?callback=initMap" async defer></script>
-		</div>
 		<br>
 		<div class="row">
 			<div class="col-sm-4 sensor_frame">
@@ -228,7 +240,7 @@ vertical-align:baseline
 						&#x2103;
 					</div>
 				</div>
-				<div id="graph_temp" class="graph_temp" style="max-width: 100%; height: 256; display:block;">
+				<div id="graph_temp" class="graph_temp" style="max-width: 100%; height: 130; display:block;">
 				</div>
 			</div>
 			<div class="col-sm-4 sensor_frame">
@@ -251,7 +263,7 @@ vertical-align:baseline
 						%
 					</div>
 				</div>
-				<div id="graph_humid" class="graph_humid" style="max-width: 100%; height: 256; display:block;">
+				<div id="graph_humid" class="graph_humid" style="max-width: 100%; height: 130; display:block;">
 				</div>
 			</div>
 			<div class="col-sm-4 sensor_frame">
@@ -274,13 +286,13 @@ vertical-align:baseline
 						lux
 					</div>
 				</div>
-				<div id="graph_lux" class="graph_lux" style="max-width: 100%; height: 256; display:block">
+				<div id="graph_lux" class="graph_lux" style="max-width: 100%; height: 130; display:block">
 				</div>
 			</div>
 		</div>
 		<br>
 		<div class="row action_frame">
-			<div class="col-sm-6 col-md-12" style="background-color : lightGray; border-radius: 15px; height: auto">
+			<div class="col-sm-12 col-md-12" style="background-color : lightGray; border-radius: 15px; height: auto">
 				<div class="row action_frame_head">
 					<div class="col-sm-2 col-xs-2">
 						<img src="http://image000.flaticon.com/icons/svg/99/99086.svg" style="width: 100%; height: 30">
@@ -303,7 +315,7 @@ vertical-align:baseline
 			</font>
 		</div>
 		<div class="row sensor_frame">
-			<div class="col-sm-6 col-md-12" style="background-color : lightGray; border-radius: 15px; height: auto">
+			<div class="col-sm-12 col-md-12" style="background-color : lightGray; border-radius: 15px; height: auto">
 				<div class="row action_frame_head">
 					<div class="col-sm-2 col-xs-2">
 						<img src="http://image000.flaticon.com/icons/svg/99/99086.svg" style="width: 100%; height: 30">
@@ -317,7 +329,7 @@ vertical-align:baseline
 				</div>
 				<div class="row">
 					<div class="col-sm-6 col-md-6 col-xs-6" style="vertical-align:bottom">
-						<input type="text" id="command_value" name="command_value" value="Type Command" style="text-align:center; width:100%; height: 34px; color:lightGray" onfocus="this.value='';this.style.color='black';return true" width="100%"></input>
+						<input type="text" id="command_value" name="command_value" value="Type Command" style="text-align:center; width:100%; height: 34px; color:lightGray" onfocus="if(this.value=='Type Command'){this.value=''};this.style.color='black';return true" width="100%"></input>
 					</div>
 					<div class="col-sm-6 col-md-6 col-xs-6">
 						<a class="myButton" id="extDevMgmt" style="width:103%;height:35">SEND Command</a>
@@ -326,6 +338,24 @@ vertical-align:baseline
 			</div>
 		</div>
 		<br>
+			<!-- 지도
+				<div class="row" style="background-color : lightgray; border-color : lightgray; border-width : 2; border-style : solid; border-radius: 15px; height: auto">
+			<div class="col-sm-6 col-md-12" style="background-color : white; height: auto; border-color : lightgray; border-width : 2; border-style : none none solid none; border-radius: 15px; ">
+				<div class="row" style="font-size:20; border-color : lightgray; border-width : 2; border-style : none none solid none; border-radius: 15px; " align="left">
+					<div class="col-sm-1 col-xs-1">
+						<img src="http://image000.flaticon.com/icons/svg/62/62516.svg" style="width: 100%; height: 24; margin:3">
+					</div>
+					<div class="col-sm-8 col-xs-8" style="text-align: left; font-size:20;">
+						 LoRa Device Location On Map
+					</div>
+				</div>
+			</div>
+			<div id="map">
+			</div>
+			<script src="https://maps.googleapis.com/maps/api/js?callback=initMap&key=AIzaSyBZzS7tfVS1UpjbtqrAT_ohTsMWliv9wzg" async defer></script>
+		</div>
+		 -->
+		<!-- 이벤트
 		<div class="row">
 			<div class="col-sm-6 col-md-12" style="background-color : lightGray; border-radius: 15px; height: auto">
 				<div class="row trigger_head_frame">
@@ -394,6 +424,7 @@ vertical-align:baseline
 							<div class="col-sm-10 col-xs-10" style="text-align : left" align="right">
 								<select id='trigger_way' width="104%" style="width: 104%">
 									<option selected>--Action Type--</option>
+									<option value="PHONE">PHONE</option>
 									<option value="E-Mail">E-Mail</option>
 								</select>
 							</div>
@@ -403,15 +434,17 @@ vertical-align:baseline
 						</div>
 					</div>
 				</div>
-				<!---->
+				
 				<div class="row">
 					<a class="myButton" id="action_button" style="width:100%;height:50;padding"><font size="5em">Register Notification</font></a>
 				</div>
 			</div>
 		</div>
+		<!---->
 	</div>
 </div>
 <br>
+<!--
 <div class="foot">
 <font size="0.5em" color="gray">
 <img src="https://openhw.sp1.sktiot.com/asset/footer/images/skt_logo.gif" style="max-width: 100%; height: auto; margin-top:10; margin-left:10">
@@ -424,5 +457,6 @@ vertical-align:baseline
  COPYRIGHT ⓒ SK TELECOM. LTD. ALL RIGHTS RESERVED.<br>
 </font>
 </div>
+-->
 </body>
 </html>
